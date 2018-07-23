@@ -29,8 +29,8 @@ class ListSuite extends FunSuite {
     assert(lista == lista2)
   }
 
-  test("Se puede hacer una lista de un solo tipo"){
-    assertDoesNotCompile( "val l = List[String](\"1\", \"2\", 3)")
+  test("Se puede hacer una lista de un solo tipo") {
+    assertDoesNotCompile("val l = List[String](\"1\", \"2\", 3)")
   }
 
 
@@ -46,19 +46,36 @@ class ListSuite extends FunSuite {
   }
 
 
-  test("A una lista se le debe poder adicionar elementos"){
-    val l1 = List(1,2,3)
-    val l2 = 4::l1
-    assert(l2 == List(4,1,2,3))
+  test("A una lista se le debe poder adicionar elementos") {
+    val l1 = List(1, 2, 3)
+    val l2 = 4 :: l1
+    assert(l2 == List(4, 1, 2, 3))
+  }
+
+  test("Se pueden concatenar listas") {
+    val l1 = List(1, 2, 3)
+    val l2 = List(4, 5, 6)
+    val l3 = l1 ::: l2
+    assert(l3 == List(1, 2, 3, 4, 5, 6))
+  }
+
+  test("A una lista se le deben poder adicionar elementos cono :+") {
+    val l1 = List(1, 2, 3)
+    val l2 = l1 :+ 4
+    assert(l2 == List(1, 2, 3, 4))
+  }
+
+  test("Hacer prepend y append") {
+    val l1 = List(2, 3, 4)
+    val l2 = 1 :: (l1 :+ 5)
+    assert(l2 == List(1, 2, 3, 4, 5))
   }
 
   test("A una lista se le debe poder eliminar elementos con drop") {
     val lista = List(1, 2, 3, 4)
-    val dropped =lista.drop(2)
+    val dropped = lista.drop(2)
 
-    assertResult(List(3, 4)) {
-      dropped
-    }
+    assert(dropped === List(3, 4))
   }
 
   test("A una lista se le pueden descartar elementos en una direccion determinada (right)") {
@@ -92,7 +109,7 @@ class ListSuite extends FunSuite {
   test("Que pasa si hacemos tail a un List()") {
     val lista = List()
     assertThrows[UnsupportedOperationException] {
-      val res =  lista.tail
+      val res = lista.tail
     }
   }
 
@@ -103,8 +120,22 @@ class ListSuite extends FunSuite {
         numero % 2 == 0
       )
 
-      lista.filter(_%2==0)
+      lista.filter(_ % 2 == 0)
 
+    }
+  }
+
+  test("Demostrar uso de dropWhile") {
+    /*    val l = List(1, 2, 3, 4, 5)
+        assertResult(List(4, 5)) {
+          l.dropWhile(n => n < 4)
+        }*/
+    val list = List(1, 2, 3, 4, 5)
+    assertResult(List(2, 3, 4, 5)) {
+      list.dropWhile(n => n % 2 != 0)
+    }
+    assertResult(List(1, 2, 3, 4, 5)) {
+      list.dropWhile(n => n % 2 == 0)
     }
   }
 
@@ -113,6 +144,16 @@ class ListSuite extends FunSuite {
     assertResult(10) {
       lista.fold(0) { (acumulado, item) =>
         acumulado + item
+      }
+    }
+  }
+
+  test("" +
+    "Una lista se debe poder acumular (multiplicacion)") {
+    val lista = List(1, 2, 3, 4)
+    assertResult(24) {
+      lista.fold(1) { (acumulado, item) =>
+        acumulado * item
       }
     }
   }
@@ -140,19 +181,19 @@ class ListSuite extends FunSuite {
   }
 
 
+  test("fold sobre una List de objetos") {
+    case class MyCaseClass(i: Int, var s: String)
+    val lista: List[MyCaseClass] = List(MyCaseClass(1, "1"), MyCaseClass(2, "2"))
 
-  test("fold sobre una List de objetos"){
-    case class MyCaseClass(i:Int, var s:String)
-    val lista: List[MyCaseClass] = List( MyCaseClass(1,"1"),  MyCaseClass(2, "2"))
-
-    assertResult("12"){
-      lista.map(x=>x.s).fold(""){(acc,item)=>acc+item}
+    assertResult("12") {
+      lista.map(x => x.s).fold("") { (acc, item) => acc + item }
     }
   }
 
   test("test - obtenga el promedio de los numeros pares") {
     val lista = List(1, 2, 3, 4, 6, 7, 8, 9, 10)
-    assert(true)
+    val pares = lista.filter(_ % 2 == 0)
+    assert(pares.sum / pares.size == 6)
   }
 
   test("Una lista se debe poder dividir") {
@@ -178,34 +219,40 @@ class ListSuite extends FunSuite {
   // ----------------------------------
 
   test("Se debe poder acceder al primer elemento de List() de forma segura") {
-    val lista = List()
+    val lista = List(1,2,3,4)
     val result = lista.headOption
-    assert(result == None)
+    assert(result.contains(1))
   }
 
 
   test("Una List se debe poder transformar") {
 
-    def f(s:String):String = s+"prueba"
+    def f(s: String): String = s + "prueba"
 
     val lista = List("1", "2", "3")
     val lista2 = lista.map(dato => dato + "prueba")
-    val lista3 = lista.map(dato => f(dato))
+    val lista3 = lista.map(f)
 
     assert(lista2.head == "1prueba")
     assert(lista != lista2)
     assert(lista2 == lista3)
   }
 
-  test("Verificacion de map sobre una List"){
-    case class MyCaseClass(nro:Int)
+  test("lista de string a enteros") {
+    val lString: List[String] = List("a", "ab", "abc", "abcd", "abcde")
+    val lInt: List[Int] = List(1,2,3,4,5)
+
+    assert(lString.map(w => w.length) == lInt)
+  }
+
+  test("Verificacion de map sobre una List") {
+    case class MyCaseClass(nro: Int)
     val l = List(1, 2, 3)
 
     val r = l.map(numero => MyCaseClass(numero))
 
-    assert(r == List(MyCaseClass(1),MyCaseClass(2),MyCaseClass(3)))
+    assert(r == List(MyCaseClass(1), MyCaseClass(2), MyCaseClass(3)))
 
   }
-
 
 }
