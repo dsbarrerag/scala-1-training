@@ -18,12 +18,13 @@ class MapSuite extends FunSuite {
     val map = Map("1" -> 1, "2" -> 2, "3" -> 3)
     assertResult(6) {
       var sum = 0
-      map.foreach((x) =>
+      map.foreach(x =>
         sum += x._2
       )
       sum
     }
   }
+
 
   test("Un Map se debe poder operar en un for-comp"){
     val mapa = Map(1->"uno", 2->"dos")
@@ -31,14 +32,14 @@ class MapSuite extends FunSuite {
     val res = for{
       i <- mapa
       if i._1 == 1
-    } yield(i)
+    } yield i
 
 
     assert(res.keys.size === 1)
     assert(res.keys.head === 1)
 
     val x: Option[String] = res.get(1)
-    assert(x == Some("uno"))
+    assert(x === Some("uno"))
   }
 
   test("crear nuevo Map con un item mas") {
@@ -128,6 +129,32 @@ class MapSuite extends FunSuite {
     assertResult(Map("1" -> 1, "2" -> 4, "3" -> 9)) {
       map.mapValues(valor => valor * valor)
     }
+  }
+
+  test("contar palabras en un mapa") {
+
+    val text = "Hola a todos a".split(" ")
+    var map = Map[String, Int]()
+
+    val res = Map("Hola" -> 1, "a" -> 2, "todos" -> 1)
+
+    text.foreach(word => {
+      if(map.keySet.contains(word))
+        map = map + (word ->  (map(word) + 1))
+      else
+        map = map + (word -> 1)
+    })
+
+    val withMap = text.map(f => {
+      f -> text.count(w => f == w)
+    }).toMap
+
+    val withFold = text.foldLeft(Map[String, Int]())((m, w) => m + (w -> (m.getOrElse(w, 0) + 1)))
+
+    assert(res === map)
+    assert(res === withMap)
+    assert(text.groupBy(x => x).mapValues(_.length) === res)
+
   }
 
 }

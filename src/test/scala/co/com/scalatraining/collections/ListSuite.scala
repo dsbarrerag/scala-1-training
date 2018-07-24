@@ -45,7 +45,6 @@ class ListSuite extends FunSuite {
     }
   }
 
-
   test("A una lista se le debe poder adicionar elementos") {
     val l1 = List(1, 2, 3)
     val l2 = 4 :: l1
@@ -219,7 +218,7 @@ class ListSuite extends FunSuite {
   // ----------------------------------
 
   test("Se debe poder acceder al primer elemento de List() de forma segura") {
-    val lista = List(1,2,3,4)
+    val lista = List(1, 2, 3, 4)
     val result = lista.headOption
     assert(result.contains(1))
   }
@@ -240,7 +239,7 @@ class ListSuite extends FunSuite {
 
   test("lista de string a enteros") {
     val lString: List[String] = List("a", "ab", "abc", "abcd", "abcde")
-    val lInt: List[Int] = List(1,2,3,4,5)
+    val lInt: List[Int] = List(1, 2, 3, 4, 5)
 
     assert(lString.map(w => w.length) == lInt)
   }
@@ -255,4 +254,20 @@ class ListSuite extends FunSuite {
 
   }
 
+  test("lista de promedios de una lista de listas") {
+    val l1 = List(List(1, 1, 1), List(2, 2, 2), List(1, 2, 3), List(2, 4, 6))
+    val list = List(List(1,1), List(2,2), Nil)
+
+    assertResult(List(1, 2)) {
+      list.flatMap(l => l match {
+        case Nil => Nil
+        case _ =>  List(l.sum.toFloat / l.size)
+      })
+    }
+
+    assertResult(List(1, 2)) {
+      list.filter(_.nonEmpty).flatMap(l => List(l.sum.toFloat / l.size))
+    }
+
+  }
 }
