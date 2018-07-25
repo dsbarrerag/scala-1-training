@@ -4,10 +4,14 @@ case class Periodo(fecha: String)
 
 case class Cotizacion(periodo: Periodo, aportante: String, dias: Int, IBC: Int)
 
-case class CotizacionSalario(periodo: Periodo, aportante: String, salario: Int)
+case class CotizacionSalario(periodo: Periodo, aportante: String, dias: Int, salario: Int)
 
-object Cotizacion {
-  def empty: Cotizacion = Cotizacion(Periodo(""), "", 0, 0)
+object CotizacionSalario {
+  def apply(cotizacion: Cotizacion, salario: Int): CotizacionSalario =
+    new CotizacionSalario(cotizacion.periodo, cotizacion.aportante, cotizacion.dias, salario)
+
+  def apply(): CotizacionSalario =
+    new CotizacionSalario(Periodo(""), "", 0, 0)
 }
 
 case class HistoriaLaboral(periodo: Periodo, salario: Int)

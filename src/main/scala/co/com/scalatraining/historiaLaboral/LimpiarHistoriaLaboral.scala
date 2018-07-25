@@ -5,25 +5,26 @@ object LimpiarHistoriaLaboral {
 
   def limpiar(cotizaciones: List[Cotizacion]): Set[HistoriaLaboral] = {
     cotizaciones.groupBy(_.periodo)
-      .map(cot => HistoriaLaboral(cot._1, limpiarPeriodo(cot._2).IBC))
+      .map(cot => HistoriaLaboral(cot._1, limpiarPeriodo(cot._2).salario))
       .toSet
   }
 
-  private def limpiarPeriodo(cotizaciones: List[Cotizacion]): Cotizacion = {
+  private def limpiarPeriodo(cotizaciones: List[Cotizacion]): CotizacionSalario = {
     cotizaciones
       .filterNot(cotizacion => cotizacion.IBC == 0 || cotizacion.dias == 0)
       .distinct
-      .map(cot => cot.copy(IBC = calcularSalario(cot)))
+      .map(cot => calcularSalario(cot))
       .groupBy(_.aportante)
-      .mapValues(cotizaciones =>
-        cotizaciones.fold(Cotizacion.empty)((acc, curr) =>
-          curr.copy(dias = acc.dias.max(curr.dias), IBC = acc.IBC.max(curr.IBC))))
+      .mapValues(cotSal => cotSal.maxBy(cot => (cot.salario, cot.dias)))
       .values
-      .fold(Cotizacion.empty)((acc, curr) => curr.copy(IBC = acc.IBC + curr.IBC))
+      .fold(CotizacionSalario())((acc, curr) => curr.copy(salario = acc.salario + curr.salario))
   }
 
-  private def calcularSalario(cotizacion: Cotizacion): Int = {
-    Math.round((cotizacion.IBC.toFloat / cotizacion.dias) * 30)
+  private def calcularSalario(cotizacion: Cotizacion): CotizacionSalario = {
+    CotizacionSalario(
+      cotizacion,
+      Math.round((cotizacion.IBC.toFloat / cotizacion.dias) * 30)
+    )
   }
 
 }

@@ -27,6 +27,8 @@ class HistoriaLaboralSpecs extends FunSuite {
 
     val periodosLimpios = LimpiarHistoriaLaboral.limpiar(periodos)
 
+    println(periodosLimpios)
+
     val res = Set(
       HistoriaLaboral(Periodo("2018/07"), 3000000),
       HistoriaLaboral(Periodo("2018/08"), 2000000),
