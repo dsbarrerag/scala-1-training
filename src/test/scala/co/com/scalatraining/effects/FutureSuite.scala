@@ -1,16 +1,14 @@
 package co.com.scalatraining.effects
 
-import java.util.Random
 import java.util.concurrent.Executors
 
 import org.scalatest.FunSuite
 
-import scala.collection.immutable.{IndexedSeq, Seq}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class FutureSuite extends FunSuite {
 
@@ -68,6 +66,7 @@ class FutureSuite extends FunSuite {
   }
 
   test("Se debe poder encadenar Future con for-comp") {
+
     val f1 = Future {
       Thread.sleep(200)
       1
@@ -87,7 +86,34 @@ class FutureSuite extends FunSuite {
 
     assert(res == 3)
 
+  }
 
+  test("Se debe poder encadenar Future con for-comp Fallido") {
+
+    val f1 = Future {
+      Thread.sleep(200)
+      1
+    }
+
+    val f2 = Future {
+      Thread.sleep(200)
+      2/0
+    }
+
+    val f3: Future[Int] = for {
+      res1 <- f1
+      res2 <- f2
+    } yield res1 + res2
+
+
+    f3.onComplete{
+      case Success(x)  => assert(false)
+      case Failure(y) => assert(true)
+    }
+
+    assertThrows[ArithmeticException]{
+      Await.result(f3, 10 seconds)
+    }
 
   }
 
